@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Favorite Poem</title>
+		<link rel="stylesheet" type="text/css" href="float.css">
+		<link rel="stylesheet" href="file.css">
+	</head>
+	<body>
+		<header>	
+			<nav>
+				<ul>
+					<li><a href="Poem.html">lab1</a></li>
+					<li><a href="Links.html">lab2</a></li>
+					<li><a href="Fiction.html">lab4</a></li>
+					<li><a href="menu.html">lab5</a></li>
+					<li><a href="Column.html">lab6</a></li>
+					<li><a href="lab7.html">lab7</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<h1>Lab 1</h1><hr>
+		<h2>Created by Justin Pulido</h2><hr>
+		<p><blockquote>
+			You know this one from <b>Dead Poets Society</b>: <br>
+			<q>Gather ye rosebuds while ye may...</q> <br>
+			A <i>carpe diem</i> theme poem.
+		</blockquote></p><hr>	
+		<span>Written by <i>Robert Herrick</i></span><br>
+		<a href="https://americanliterature.com/100-great-poems">Source of poem</a><br><hr>
+	<canvas id="myCanvas" width="200" height="100" style="border:1px solid #000000;">
+		<script type="text/javascript">
+			var c = document.getElementById("myCanvas");
+			var ctx = c.getContext("2d");
+			ctx.moveTo(0,0);
+			ctx.lineTo(200, 100);
+			ctx.stroke();
+		</script>
+	</canvas><hr>
+	<canvas id="Canvas" width="300" height="200" style="border:1px solid #000000;">
+		<script type="text/javascript">
+			var c=document.getElementById("Canvas");
+			var ctx=c.getContext("2d");
+
+			var gradient=ctx.createLinearGradient(0,0,170,0);
+			gradient.addColorStop("0","magenta");
+			gradient.addColorStop("0.5","blue");
+			gradient.addColorStop("1.0","red");
+	
+			ctx.strokeStyle=gradient;
+			ctx.lineWidth=3;
+			ctx.strokeRect(20,20,150,100);
+
+			ctx.beginPath();
+			ctx.moveTo(40,10);
+			ctx.lineTo(40,100);
+			ctx.lineTo(70,100);
+			ctx.stroke();
+		</script><hr>
+	</canvas>
+	</body>
+</html>
