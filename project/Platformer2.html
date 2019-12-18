@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<link rel="stylesheet" href="In_line.css">
+		<title>Game</title>
+	</head>
+	<body background="grey.jpg">
+		<ol>
+			<li><h3>Now lets try and make things more difficult.</h3></li>
+			<li><h3>
+				Since you have experienced the controls, lets<br>
+				make things a lot more difficult from here on out.
+			</h3></li>
+			<li><h3>
+				also, I changed the gravity to be a little heavier.
+			</h3></li>
+		</ol>
+		<canvas id="canvas" style="border:1px solid #000"></canvas>
+		<script>
+			//used for older versions of window browsers. 
+			(function() {
+				var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+				window.requestAnimationFrame = requestAnimationFrame;
+			})();
+			
+			//creating variables for the width, canvas, height and player. 
+			var width = 500;
+			var canvas = document.getElementById("canvas"); 
+			var ctx = canvas.getContext("2d");
+			var height = 200;
+			var	player = {
+					x : 0,
+					y : 160,
+					width : 5,
+					height : 5,
+					speed : 3,
+					velX : 0,
+					velY : 0,
+					jumping : false,
+					grounded: false
+				};
+			//creating variable for the next level by creating a 
+			//block that will sit at the end of the level waiting for the 
+			//player to get there. 
+			var next_level = {
+					x : 270,
+					y : 20,
+					width: 10,
+					height: 10
+				},
+				<!--using this for the keyboard inputs-->
+				keys = [];
+				<!--friction variables-->
+				friction = 0.8;
+				//gravity
+				gravity = 0.4;
+			
+			//creating an array for boxes.
+			var boxes = []
+			//creating boxes for the player to jump on. 
+			//setting dimensions
+			//pushing each new box onto the array
+			//pushes box on the left side of the canvas, setting width to 10
+			//and height to height of canvas(0)
+			boxes.push({
+				x: 0,
+				y: 190,
+				width: 10,
+				height: height
+			});
+			//pushes box on the bottom of the canvas and sets the height
+			//to 200 which is size of the canvas and will set the y to be 2 
+			//of the height of the canvas itself.(1) 
+			boxes.push({
+				x: 0,
+				y: height - 2,
+				width: width,
+				height: 50
+			});
+			
+			//pushes box onto the right side of the canvas and sets it to be 10
+			//before the canvas ends or else it will not show up. sets width 
+			//to 50 and sets the height to the height of the canvas.(2)
+			//box at the end
+			boxes.push({
+				x: 470,
+				y: 140,
+				width: 30,
+				height: height
+			});
+			
+			//3 box at the beginning next to the starting block			
+			boxes.push({
+				x: 50,
+				y: 90,
+				width: 50,
+				height: 30
+			});
+			
+			//small box next to starting block
+			boxes.push({
+				x: 20,
+				y: 170,
+				width: 30,
+				height: 10
+			});
+			
+			//box above the starting block.
+			boxes.push({
+				x: 0,
+				y: 140,
+				width: 10,
+				height: 10
+			});
+			
+			//box on the side
+			boxes.push({
+				x: 45,
+				y: 110,
+				width: 5,
+				height: 10
+			});
+			
+			//floating box (6)
+			boxes.push({
+				x: 120,
+				y: 70,
+				width: 20,
+				height: 20
+			});
+			
+			//5
+			boxes.push({
+				x: 150,
+				y: 40,
+				width: 20,
+				height: 20
+			});
+			
+			boxes.push({
+				x: 130,
+				y: 50,
+				width: 10,
+				height: 20
+			});
+			
+			//6
+			boxes.push({ 
+				x: 180,
+				y: 110,
+				width: 30,
+				height: 90
+			});
+			
+			//7
+			boxes.push({
+				x: 210,
+				y: 190,
+				width: 30,
+				height: 20
+			});
+			
+			//8
+			boxes.push({
+				x: 250,
+				y: 90,
+				width: 20,
+				height: 80
+			});
+				
+			//9	
+			boxes.push({
+				x: 290,
+				y: 110,
+				width: 20,
+				height: 30
+			});
+			
+			//10
+			boxes.push({
+				x: 340,
+				y: 120,
+				width: 20,
+				height: 20
+			});
+			
+			boxes.push({
+				x: 210,
+				y: 130,
+				width: 10,
+				height: 10
+			});
+			
+			boxes.push({
+				x: 240,
+				y: 160,
+				width: 10,
+				height: 10
+			});
+			
+			boxes.push({
+				x: 490,
+				y: 100,
+				width: 20,
+				height: 10
+			});
+			
+			boxes.push({
+				x: 430,
+				y: 80,
+				width: 30,
+				height: 20
+			});
+			//where is this box?
+			boxes.push({
+				x: 390,
+				y: 140,
+				width: 30,
+				height: 20
+			});
+			
+			boxes.push({
+				x: 460,
+				y: 150,
+				width: 10,
+				height: 10
+			});
+			
+			boxes.push({
+				x: 380,
+				y: 60,
+				width: 20,
+				height: 10
+			});
+			
+			boxes.push({
+				x: 340,
+				y: 40,
+				width: 20,
+				height: 20
+			});
+			
+			boxes.push({
+				x: 300,
+				y: 30,
+				width: 40,
+				height: 10,
+			});
+			//declaring canvas width and height
+			canvas.width = width;
+			canvas.height = height;
+			
+			function update() {
+				<!--checking the keys-->
+				if(keys[38] || keys[32] || keys[87]) {
+					<!--up arrow or spacebare-->
+					if(!player.jumping && player.grounded) {
+						player.jumping = true;
+						player.grounded = false;//not on ground			
+						player.velY = -player.speed*2;
+					}
+				} 
+				
+				if(keys[39] || keys[68]) {
+					//checking to see if the velocity of the player
+					//is less than the speed of it, and if it is, then
+					//increase the players velocity. 
+					if(player.velX < player.speed) {
+						player.velX++;
+					}
+				}
+				if(keys[37] || keys[65]) {
+					//if the player velocity is less than the player speed
+					//then move decrease the players speed and move to the left
+					if(player.velX > -player.speed) {
+						player.velX--;
+					}
+				}
+				
+				<!--if the player is bigger than the width of the canvas, then the player is set to be at the end of the canvas-->
+				if(player.x >= width-player.width) {
+					player.x = width-player.width;
+				} else if(player.x <= 0) { 
+					<!--else the player will be stay where they are at-->
+					player.x = 0;
+				}
+				
+				//used to make it so the play is not stopped imediately
+				//after the user lets go of the arrow keys. 
+				player.velX *= friction;
+				//makes it to where the player does not fly away after 
+				//jumping. 
+				player.velY += gravity;
+				
+				
+				//creating the starting point of the rectangle 
+				//setting the x, y, width and height as well for default
+				ctx.clearRect(0,0,width,height);
+				
+				//the two boxes will fill in the sides to be the length of 
+				//the canvas. 
+				ctx.fillStyle = "black";
+				ctx.beginPath();
+				
+				player.grounded = false;
+				
+				//for each box within the array, set the x, y, width, and 
+				//height for each one. 
+				for(var i = 0; i < boxes.length; i++) {
+					//filling the boxes with the width of the canvas and 
+					//the height as well. 
+					ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
+					
+					//calling the collision function within 
+					//the loop to create the boxes so that the player
+					//is able to collide with it. 
+					var dir = collision_check(player, boxes[i]);
+					
+					//if the player is on the right or left,
+					//stop the player from moving. 
+					if(dir === "l" || dir === "r") {
+						player.velX = 0;
+						player.jumping = false;
+					} else if(dir === "b") {
+						//if the direction is on the bottom, then
+						//the player will no longer be jumping and will
+						//fall back down. 
+						player.grounded = true;
+						player.jumping = false;
+					} else if(dir === "t") {
+						//if the direction is on the top, then the player
+						//will just be on top of the object. 
+						player.velY *= -1;
+					}
+					var next = new_level_check(player, next_level);
+				}
+				
+				if(player.grounded) {
+					player.velY = 0;
+				}
+				
+				//will be responsible for actuall moving the player. 
+				player.x += player.velX;
+				player.y += player.velY;
+				
+				//fill all values with a static value. 
+				ctx.fill();
+				
+				//this will be our player. filling the box with red.
+				ctx.fillStyle = "red";
+				
+				//setting width, height and setting where the player will
+				//spawn as well. If the x width is changed, the player will
+				//start more to the right or left. if the height is changed,
+				//the player will start off falling instead of on the ground. 
+				ctx.fillRect(player.x, player.y, player.width, player.height);
+
+				
+				//filling the next level box to be yellow so that it helps
+				//differentiate where the player needs to go to complete
+				//the level. 
+				ctx.fillStyle = "yellow";
+				ctx.fillRect(next_level.x, next_level.y, next_level.width, next_level.height);
+						
+				//run through loop again
+				requestAnimationFrame(update);
+			}
+			
+			function collision_check(shapeA, shapeB) {
+				//get the vectors of box and check against the player.
+				var vX = (shapeA.x + (shapeA.width/2)) - (shapeB.x + (shapeB.width/2));
+				var vY = (shapeA.y + (shapeA.height/2)) - (shapeB.y +  (shapeB.height/2));
+				
+				//add half widths and half heights of the objects
+				var	hWidths = (shapeA.width/2) + (shapeB.width/2);
+				var hHeights = (shapeA.height/2) + (shapeB.height/2);
+				var colDir = null;
+				
+				///if x and y vecotrs are less than half width or half height
+				//there must be collision. 
+				if(Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
+					//taking the absolute value of the object by using
+					//Math.abs() giving it the name Offset x and y
+					var oX = hWidths - Math.abs(vX);
+					var oY = hHeights - Math.abs(vY);
+					
+					//if the variable is on top of the object
+					//then add the player object with the box object 
+					//so it is no longer colliding with it and place it above
+					//the object. 
+					if(oX >= oY) {
+						if(vY > 0) {
+							colDir = "t";
+							shapeA.y += oY;
+						} else {
+							//if its colliding with the bottom of the object
+							colDir = "b";
+							shapeA.y -= oY;
+						}
+					} else {
+						if(vX > 0) {
+							//if the box is colliding on the left side
+							colDir = "l";
+							shapeA.x += oX;
+						} else {
+							//if its colliding on the right side of it. 
+							colDir = "r";
+							shapeA.x -= oX;
+						}
+					}
+				}
+				return colDir;
+			}
+				
+			//using to check for the collision of the new level box 
+			//that is created and when they do collide, then send the 
+			//player to the next level and have them play another. 
+			function new_level_check(shapeA, shapeB) {
+				//get the vectors of box and check against the player.
+				var vX = (shapeA.x + (shapeA.width/2)) - (shapeB.x + (shapeB.width/2));
+				var vY = (shapeA.y + (shapeA.height/2)) - (shapeB.y +  (shapeB.height/2));
+				
+				//add half widths and half heights of the objects
+				var	hWidths = (shapeA.width/2) + (shapeB.width/2);
+				var hHeights = (shapeA.height/2) + (shapeB.height/2);
+				//will be used to first indicate that the collision is not occuring
+				var col_Dir = null;
+				
+				///if x and y vecotrs are less than half width or half height
+				//there must be collision. 
+				if(Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
+					//var OX = hWidths - Math.abs(vX);
+					//var OY = hWidths - Math.abs(vY);
+					//changing the location to be the platformer3.html
+					//if(OX > OY) {
+						window.location.href = "Platformer3.html";
+					//}
+					//if(OX < OY) {
+						//window.location.href = "Platformer3.html";
+					//}
+				}
+				return col_Dir;
+			}
+			
+			//this allows us to keep track of multiple keys being pressed
+			//at once rather than only keeping track of one key at a time. 
+			document.body.addEventListener("keydown", function(e) {
+				keys[e.keyCode] = true;
+			});
+			document.body.addEventListener("keyup", function(e) {
+				keys[e.keyCode] = false;
+			});
+			
+			<!--using this to start the loop-->
+			window.addEventListener("load", function() {
+				update();
+			});
+		</script>
+	</body>
+</html>
